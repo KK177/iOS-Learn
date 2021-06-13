@@ -835,3 +835,12 @@ Universal Links是 HTTP 或 HTTPS URL，他们可以使用户在App内而不是�
 
 ## Core Text
 Core Text是对文本进行绘制的api
+
+## NSFileManager
+NSFileManager类主要对文件和目录进行操作（删除，移除，查找，移动，复制等等）。如果要对文件内容进行更改，应该使用NSFileHandle。所以说NSFileManager是偏向于对文件的管理，而不是对文件内容的操作。
+
+## NSURLSession
+NSURLSession由三部分组成：
+NSURLSession：请求会话对象，可以用系统提供的单例对象，也可以自己创建
+NSURLSessionConfiguration：对Session会话进行配置，一般使用default
+NSURLSessionTask：负责执行具体请求的task，由Session创建
