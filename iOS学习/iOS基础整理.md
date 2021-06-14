@@ -844,3 +844,32 @@ NSURLSession由三部分组成：
 NSURLSession：请求会话对象，可以用系统提供的单例对象，也可以自己创建
 NSURLSessionConfiguration：对Session会话进行配置，一般使用default
 NSURLSessionTask：负责执行具体请求的task，由Session创建
+
+值得注意的是⚠️
+下面的代理方法是请求数据时执行的代理方法
+```swift
+/**  告诉delegate已经接受到服务器的初始应答, 准备接下来的数据任务的操作. 在这个方法里可以将task取消或者继续执行，如果要继续执行，那么就要调用completionHandler这个Block，并把allow参数传进去
+*/
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler 
+
+/** 告诉delegate已经接收到部分数据. */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+
+
+/** 告诉delegate, data task 已经转变成download task. */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
+```
+代理方法调用的前提是：NSURLSessionDataTask要创建对
+```swift
+        //这种创建的Task是会走代理方法的
+        self.dataTask = self.session.dataTask(with: request as URLRequest)
+        //这种创建的Task是不会走代理方法的，已经自带conpletionHandler，请求数据完成就会调用这个闭包
+        self.dataTask =  self.session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
+        })
+```
+
+## NSOutputStream NSInputStream
+NSOutputStream NSInputStream都是继承于NSStream，NSStream是一个抽象类。Stream翻译为流，作用在于把文件的内容，一部分一部分地读出 或 写入，这样做的好处是有利于降低内存峰值（可以联想一下计网中的运输层的字节流，字节流传输数据，那么设备的缓存就不用很大，有利于降低内存峰值）
+
+## NSException
+NSException是用于抛出异常的，当程序crash时，控制台打印的崩溃信息就是由NSException产生的
