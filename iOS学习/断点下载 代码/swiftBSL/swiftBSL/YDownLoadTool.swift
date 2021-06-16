@@ -60,7 +60,6 @@ class YDownLoadTool: NSObject, URLSessionDelegate,URLSessionTaskDelegate,URLSess
     func downLoadFromUrl(url: URL, offset:CLongLong) {
         let request = NSMutableURLRequest(url: url as URL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 0)
         request.setValue(String(format: "bytes=%lld", offset), forHTTPHeaderField: "Range")
-        
         self.dataTask = self.session.dataTask(with: request as URLRequest)
         self.dataTask?.resume()
     }
