@@ -103,3 +103,88 @@ swift中有一些api是要求做好异常处理的，否则就会有以下警告
             print(error)
         }
 ```
+
+## isKind isMember
+isKind 用来判断是不是当前指定类或者指定类的子类的对象
+isMMember 用来判断是不是当前指定类的对象
+
+## filter
+swift中的过滤函数，可以将数组中的元素按照某种规则进行一次过滤。
+```swift
+func filter(_ isIncluded: (String) throws -> Bool) rethrows -> [String]
+```
+[filter学习](https://www.jianshu.com/p/1a4ad590a900)
+
+## reduce 
+reduce:对数组元素进行计算
+```swift
+//第一个参数是Result的初始值
+//第二个参数是(Result, Int)中的Int表示数组元素
+func reduce<Result>(_ initialResult: Result, _ nextPartialResult: (Result, Int) throws -> Result) rethrows -> Result
+```
+[reduce学习](https://www.jianshu.com/p/1a4ad590a900)
+## $0 
+swift自动为闭包提供参数名缩写功能，可以直接用$0,$1等来表示闭包中的第一个第二个参数，并且对应的参数类型会根据函数类型来进行判断。
+
+## rethrows
+这个函数的类型是 （）throws -> Void
+```swift
+func test() throws {
+    
+}
+```
+()throws -> Void 和 () -> Void 是两种不同的类型，但是()throws -> Void可以兼容() -> Void，带上throws标记只是表明可能抛出异常，有可能抛出异常的可能性为0（其实就相当于转化成了() -> Void类型）
+
+execute函数里的参数colsure是throws -> Void类型的，在函数内部调用该闭包时前面要加上try关键字。而对于抛出异常，则有两种选择：第一是由方法亲自处理；第二是将异常继续向上抛出，由调用者考虑处理或继续抛出。
+
+下面是采用了向上抛出的处理，因此函数execute带上了throws的标记
+```swift
+func execute(_ closure: () throws -> Void) throws {
+    try closure()
+}
+```
+
+由于execute(_ :) 有throws标记，调用它时也需要try关键字
+```swift
+do {
+    try execute(dangerousFunc)
+} catch {
+    // ...
+}
+```
+
+由于() throws -> Void可以兼容() -> Void的情况，因此当传入的参数闭包可以是不需要抛出异常的。
+```swift
+//这样的话明明传入的参数safeFunc不需要抛出异常，但还是做好了异常处理
+func safeFunc() {
+    // Do nothing
+}
+
+do {
+    try execute(safeFunc)
+} catch {
+    // ...
+}
+```
+
+那么解决办法是🌟 - 利用rethrows关键字
+```swift
+func execute(_ closure: () throws -> Void) rethrows {
+    try closure()
+}
+```
+我们可以直接调用，而不需要用 try，因为 Swift 知道你传入的是不带 throws 的闭包：
+```swift
+// * for dangerous func:
+do {
+    try execute(dangerousFunc)
+} catch {
+    // ...
+}
+
+// ......
+// * for safe func
+execute(safeFunc)
+```
+[rethrows学习](https://zhuanlan.zhihu.com/p/155855695)
+

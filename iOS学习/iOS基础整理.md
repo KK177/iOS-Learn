@@ -31,9 +31,10 @@ https://www.jianshu.com/p/2e3bd492ec1b
 - `Foudation`框架中几乎所有对象都是以`NS`开头
 - 在所有的NS对象中，最基础的类就是`NSObject`类，是所有`Cocoa`框架中所有对象的基类
 
-### instancetype
+### instancetype id
 
 - 返回类型为`instancetype`的函数 表示 返回值代表当前类的实例，比如在`NSObject`类中，`instacnetype`表示返`NSObject`的实例
+- instancetype 和 id 相似，但是instancetype有类型检测功能，函数返回时instancetype会判定该对象是某特定类的实例，而id则只是表示一个未知的OC对象
 
 
 
@@ -888,3 +889,52 @@ import "" 是引入本地工程文件，import <> 是引入系统库文件
 import “” 会先查看本地工程目录下是否有这个文件，若查找不到，那么就会去查看系统库文件
 import <> 是直接去查看系统库文件，如果找不到，是不会去查找本地工程目录的
 而对于通过cocoaPods导入的库，是推荐使用import <> 的。因为通过cocoaPods导入的库也是属于系统库之一。
+
+## popviewcontrolleranimated
+nav的push方法是将控制器压入栈中，pop方法是将栈顶控制器pop出来，pop出控制器，只会调用其viewWillAppear跟viewDidAppear方法，由于控制器还在内存中，是不会调用viewDidLoad方法。
+
+## 序列化
+在iOS中一个自定义对象是无法直接存储到文件中的，必须要先转化成二进制流才行。从对象到二进制数据的转换称为序列化，也称为归档。同理，从二进制数据到对象的过程一般称为反序列化或反归档。
+
+## JSON
+jSON是一种轻量级的数据格式，一般用于数据交互。
+服务器返回给客户端的数据，一般都是JSON格式或者XML格式（文件下载除外）
+
+JSON解析方案
+在iOS中，JSON的常见的解析方案有4种
+- 第三方框架：JSONKit、SBJson、TouchJSON（性能从左到右逐渐变差）
+- 苹果原生（自带）：NSJSONSerializatiom（性能最好的）
+
+NSJSONSerialization的常见方法：
+``` Objective - c
+ // JSON数据 -> OC对象
+ // 第一个参数：待转换的data数据
+ // 第二个参数：告诉系统如果转换json数据
+ // NSJSONReadingMutableContainers：转出来的对象是可变数据或可变字典
+ // NSJSONReadingAllowFragments：允许解析出来的对象不是数组或者字典，比如直接是字符串或NSNumber
++ (id)JSONObjectWithData:(NSData*)data  options:(NSJSONReadingOptions)opt error:(NSError**)error;
+
+// OC对象 -> JSON数据 
++ (NSData*)dataWithJSONObject:(id)obj options:(NSJSONWritingOptions)opt error:(NSError**)error;
+```
+
+## 进程和线程
+一个运行着的程序就是一个进程或者叫做一个任务，一个进程至少包含一个线程，线程就是程序的执行流。程序启动时，就会创建一个主线程，主线程在程序中的地位和其他线程不同，界面UI的操作都必须在主线程中进行。
+
+系统的每一个进程都有自己独立的虚拟内存空间，而同一个进程中的多个线程则共用进程的内存空间。每创建一个新的线程，都需要一些内存和消耗一定的CPU时间。
+
+## RunLoop
+RunLoop代表着运行循环。
+运行循环的开始需要去检测是否有需要处理的时间，如果有则去处理，如果没有则进入睡眠状态以节省CPU时间。
+一般创建的NSTimer都是默认加入到当前的事件循环当中的。
+
+将需要做的事情注册到当前的事件循环后，每次事件循环开始，都会去检查这些事件源是否有需要处理的数据，有的话就去处理，没的话就进入睡眠状态。
+
+每一个线程都有其对应的RunLoop，但是默认非主线程的RunLoop是不运行的，除非要在一个单独的线程中长期监测某个事件。
+
+## iTunes文件共享
+iTunes文件共享是一种向iOS设备传输文件或从iOS设备传输文件的功能。
+
+## writeToFile atomically
+atomically：若设为YES，那么就会先把数据写进一个辅助文件，在成功写入到辅助文件之后，将辅助文件复制到第一个参数指定位置的路径下。这是更安全的写入文件的方法，因为如果应用在保存期间崩溃了，则现有文件不会被破坏。尽管这增加了一点开销，但是多数情况下还是值得的。
+atomically：若设为NO，那么会直接把数据写进第一个参数指定位置的路径下。
